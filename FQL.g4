@@ -6,16 +6,16 @@ grammar FQL;
 
 query : expression+ EOF;
 
-expression : expression OR expression
-	   | PARENS_OPEN expression PARENS_CLOSE
-           | negation
-           | condition
-           | value
+expression : PARENS_OPEN expression+ PARENS_CLOSE
+           | filter
+           | unboundValue
+	   //| expression expression
+	   | expression OR expression
            ;
 
-negation : NOT condition ;
-condition : key op value ;
+filter : NOT? key op value ;
 
+unboundValue: value ;
 key : WORD ;
 op : OP ;
 value : WORD | STRING ;
