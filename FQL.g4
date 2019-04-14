@@ -4,12 +4,12 @@ grammar FQL;
  * Parser Rules
  */
 
-query : expression+ EOF;
+query : expression EOF;
 
 expression : PARENS_OPEN expression+ PARENS_CLOSE
            | filter
            | unboundValue
-	   //| expression expression
+	   | expression expression
 	   | expression OR expression
            ;
 

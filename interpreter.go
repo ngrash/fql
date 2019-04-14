@@ -15,6 +15,22 @@ type Expression interface {
 }
 
 /*
+ * Query Expression
+ */
+
+type Query struct {
+	expression Expression
+}
+
+func (q *Query) Eval(r Row) bool {
+	return q.expression.Eval(r)
+}
+
+func (q *Query) String() string {
+	return q.expression.String()
+}
+
+/*
  * Or Expression
  */
 
@@ -90,17 +106,17 @@ func (f *Filter) String() string {
 }
 
 /*
- * Value Expression
+ * Unbound Value Expression
  */
 
-type Value struct {
+type UnboundValue struct {
 	value string
 }
 
-func (v *Value) Eval(r Row) bool {
-	return true
+func (v *UnboundValue) Eval(r Row) bool {
+	return true // TODO
 }
 
-func (v *Value) String() string {
+func (v *UnboundValue) String() string {
 	return fmt.Sprintf("{value=%v}", v.value)
 }

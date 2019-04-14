@@ -66,19 +66,14 @@ func debugOutput(listener *TreeShapeListener, ctx antlr.ParserRuleContext) strin
 }
 
 func (this *TreeShapeListener) EnterQuery(ctx *parser.QueryContext) {
-	this.stack.Push(&Group{})
+	this.stack.Push(&Query{})
 }
 
 func (this *TreeShapeListener) ExitQuery(ctx *parser.QueryContext) {
-	num_expressions := len(ctx.AllExpression())
-	expressions := make([]Expression, num_expressions)
-	for i := 0; i < num_expressions; i++ {
-		expressions[num_expressions-1-i] = this.stack.Pop()
-	}
-
-	group := this.stack.Pop().(*Group)
-	group.expressions = expressions
-	this.result = group
+	expression := this.stack.Pop()
+	query := this.stack.Pop().(*Query)
+	query.expression = expression
+	this.result = query
 }
 
 func (this *TreeShapeListener) ExitExpression(ctx *parser.ExpressionContext) {
@@ -86,7 +81,7 @@ func (this *TreeShapeListener) ExitExpression(ctx *parser.ExpressionContext) {
 		this.stack.Push(&Or{
 			right: this.stack.Pop(),
 			left: this.stack.Pop()})
-	} else if ctx.PARENS_CLOSE() != nil {
+	} else if ctx.UnboundValue() == nil && ctx.Filter() == nil {
 		num_expressions := len(ctx.AllExpression())
 		expressions := make([]Expression, num_expressions)
 		for i := 0; i < num_expressions; i++ {
@@ -98,7 +93,7 @@ func (this *TreeShapeListener) ExitExpression(ctx *parser.ExpressionContext) {
 }
 
 func (this *TreeShapeListener) EnterUnboundValue(ctx *parser.UnboundValueContext) {
-	this.stack.Push(&Value{value: ctx.GetText()})
+	this.stack.Push(&UnboundValue{value: ctx.GetText()})
 }
 
 func (this *TreeShapeListener) EnterFilter(ctx *parser.FilterContext) {
@@ -122,7 +117,6 @@ func main() {
 	p.BuildParseTrees = true
 	tree := p.Query()
 	listener := NewTreeShapeListener()
-	listener.debug = true
 	antlr.ParseTreeWalkerDefault.Walk(listener, tree)
 	fmt.Println(listener.result)
 }
