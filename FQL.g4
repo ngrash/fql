@@ -26,12 +26,12 @@ value : WORD | STRING ;
 
 STRING : '"' .*? '"' ;
 
-fragment EQ : (':' | '=') ;
-fragment GE : ('>=' | '=>') ;
-fragment LE : ('<=' | '=<') ;
+fragment EQ : ':' ;
+fragment GE : '>=' ;
+fragment LE : '<=' ;
 fragment LT : '<' ;
 fragment GT : '>' ;
-fragment NE : ('!=' | '=!') ;
+fragment NE : '!=' ;
 
 OP : (EQ | GE | LE | LT | GT | NE);
 
