@@ -88,7 +88,7 @@ type Filter struct {
 func (f *Filter) Eval(r Row) bool {
 	var result bool
 	switch f.op {
-	case ":":
+	case ":": // TODO
 		result = r.GetValue(f.key) == f.value
 	default:
 		panic(fmt.Sprintf("Unknown op. <%v>", f.String()))

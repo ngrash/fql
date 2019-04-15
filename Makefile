@@ -1,4 +1,4 @@
-fql: fql.go interpreter.go parser/fql_parser.go
+fql: fql.go ast.go parser/fql_parser.go
 	go build
 
 parser/fql_parser.go: FQL.g4
