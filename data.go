@@ -102,3 +102,7 @@ func (r *CSVReader) Read() Row {
 
 	return nil // EOF
 }
+
+func (r *CSVReader) Line() string {
+	return r.scanner.Text()
+}

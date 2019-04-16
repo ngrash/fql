@@ -118,8 +118,9 @@ func main() {
 	tree := p.Query()
 	listener := NewTreeShapeListener()
 	antlr.ParseTreeWalkerDefault.Walk(listener, tree)
+	query := listener.result
 
-	fmt.Println(listener.result)
+	//fmt.Println(listener.result)
 
 	file, err := os.Open(os.Args[2])
 	if err != nil {
@@ -132,14 +133,11 @@ func main() {
 	for  {
 		row := reader.Read()
 		if row == nil {
-			fmt.Printf("done\n")
 			break
 		}
 
-		if listener.result.Eval(row) {
-			fmt.Printf("[MATCH] ")
+		if query.Eval(row) {
+			fmt.Println(reader.(*CSVReader).Line())
 		}
-
-		fmt.Printf("%T#%v\n", row, row)
 	}
 }
