@@ -6,7 +6,7 @@ import (
 )
 
 type Expression interface {
-	Eval(r *Row) bool
+	Eval(r Row) bool
 	String() string
 }
 
@@ -18,7 +18,7 @@ type Query struct {
 	expression Expression
 }
 
-func (q *Query) Eval(r *Row) bool {
+func (q *Query) Eval(r Row) bool {
 	return q.expression.Eval(r)
 }
 
@@ -35,7 +35,7 @@ type Or struct {
 	right Expression
 }
 
-func (o *Or) Eval(r *Row) bool {
+func (o *Or) Eval(r Row) bool {
 	return o.left.Eval(r) || o.right.Eval(r)
 }
 
@@ -51,7 +51,7 @@ type Group struct {
 	expressions []Expression
 }
 
-func (g *Group) Eval(r *Row) bool {
+func (g *Group) Eval(r Row) bool {
 	for _, e := range g.expressions {
 		if !e.Eval(r) {
 			return false
@@ -81,8 +81,8 @@ type Filter struct {
 	value string
 }
 
-func (f *Filter) Eval(r *Row) bool {
-	actual, wanted := (*r).Value(f.key), f.value
+func (f *Filter) Eval(r Row) bool {
+	actual, wanted := r.Value(f.key), f.value
 
 	var result bool
 	switch f.op {
@@ -121,8 +121,8 @@ type UnboundValue struct {
 	value string
 }
 
-func (v *UnboundValue) Eval(r *Row) bool {
-	for _, actual := range (*r).Values() {
+func (v *UnboundValue) Eval(r Row) bool {
+	for _, actual := range r.Values() {
 		if strings.Contains(actual, v.value) {
 			return true
 		}

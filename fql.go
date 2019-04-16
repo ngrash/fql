@@ -118,5 +118,28 @@ func main() {
 	tree := p.Query()
 	listener := NewTreeShapeListener()
 	antlr.ParseTreeWalkerDefault.Walk(listener, tree)
+
 	fmt.Println(listener.result)
+
+	file, err := os.Open(os.Args[2])
+	if err != nil {
+		panic("Failed to open file")
+	}
+
+	defer file.Close()
+
+	reader := NewCSVReader(file)
+	for  {
+		row := reader.Read()
+		if row == nil {
+			fmt.Printf("done\n")
+			break
+		}
+
+		if listener.result.Eval(row) {
+			fmt.Printf("[MATCH] ")
+		}
+
+		fmt.Printf("%T#%v\n", row, row)
+	}
 }

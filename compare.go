@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"fmt"
 	"time"
 	"strconv"
@@ -11,43 +12,57 @@ type Values interface {
 }
 
 func GreaterThan(a, b string) bool {
-	values := Parse(a, b)
-	comp := values.Compare()
-	return comp > 0
+	if comp, ok := Compare(a, b); ok {
+		return comp > 0
+	}
+	return false
 }
 
 func GreaterOrEqual(a, b string) bool {
-	values := Parse(a, b)
-	comp := values.Compare()
-	return comp >= 0
+	if comp, ok := Compare(a, b); ok {
+		return comp >= 0
+	}
+	return false
 }
 
 func LessThan(a, b string) bool {
-	values := Parse(a, b)
-	comp := values.Compare()
-	return comp < 0
+	if comp, ok := Compare(a, b); ok {
+		return comp < 0
+	}
+	return false
 }
 
 func LessOrEqual(a, b string) bool {
-	values := Parse(a, b)
-	comp := values.Compare()
-	return comp <= 0
+	if comp, ok := Compare(a, b); ok {
+		return comp <= 0
+	}
+	return false
 }
 
-func Parse(a, b string) Values {
-	if intValues, err := ParseInts(a, b); err != nil {
-		return intValues
+func Compare(a, b string) (int8, bool) {
+	values, err := Parse(a, b)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return 0, false
 	}
 
-	if floatValues, err := ParseFloats(a, b); err != nil {
-		return floatValues
+	return values.Compare(), true
+}
+
+func Parse(a, b string) (Values, error) {
+	if intValues, err := ParseInts(a, b); err == nil {
+		return intValues, nil
 	}
 
-	if timeValues, err := ParseTimes(a, b); err != nil {
-		return timeValues
+	if floatValues, err := ParseFloats(a, b); err == nil {
+		return floatValues, nil
 	}
 
-	panic(fmt.Sprintf("Cannot parse both '%v' and '%v' to int, float or date", a, b))
+	if timeValues, err := ParseTimes(a, b); err == nil {
+		return timeValues, nil
+	}
+
+	return nil, fmt.Errorf("Cannot convert both '%v' and '%v' to same type (tried int, float, and date)", a, b)
 }
 
 /*
@@ -56,6 +71,10 @@ func Parse(a, b string) Values {
 
 type IntValues struct {
 	a, b int64
+}
+
+func (i IntValues) String() string {
+	return fmt.Sprintf("%T#{a=%v, b=%v}", i, i.a, i.b)
 }
 
 func (i IntValues) Compare() int8 {
@@ -90,6 +109,10 @@ type FloatValues struct {
 	a, b float64
 }
 
+func (f FloatValues) String() string {
+	return fmt.Sprintf("%T#{a=%v, b=%v}", f, f.a, f.b)
+}
+
 func (f FloatValues) Compare() int8 {
 	if f.a == f.b {
 		return 0
@@ -120,6 +143,10 @@ func ParseFloats(a, b string) (FloatValues, error) {
 
 type TimeValues struct {
 	a, b time.Time
+}
+
+func (t TimeValues) String() string {
+	return fmt.Sprintf("%T#{a=%v, b=%v}", t, t.a, t.b)
 }
 
 func (t TimeValues) Compare() int8 {
