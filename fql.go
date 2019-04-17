@@ -16,7 +16,7 @@ func main() {
 
 	defer file.Close()
 
-	reader := NewCSVReader(file)
+	reader := NewJSONReader(file)
 	for  {
 		row := reader.Read()
 		if row == nil {
@@ -24,7 +24,8 @@ func main() {
 		}
 
 		if query.Eval(row) {
-			fmt.Println(reader.(*CSVReader).Line())
+			fmt.Println()
+			fmt.Println(row)
 		}
 	}
 }
