@@ -7,7 +7,6 @@ import (
 
 func main() {
 	query := ParseQuery(os.Args[1])
-	//fmt.Println(listener.result)
 
 	file, err := os.Open(os.Args[2])
 	if err != nil {
@@ -17,6 +16,7 @@ func main() {
 	defer file.Close()
 
 	reader := NewJSONReader(file)
+	output := NewPivotOutput()
 	for  {
 		row := reader.Read()
 		if row == nil {
@@ -24,8 +24,7 @@ func main() {
 		}
 
 		if query.Eval(row) {
-			fmt.Println()
-			fmt.Println(row)
+			fmt.Print(output.Format(reader, row))
 		}
 	}
 }

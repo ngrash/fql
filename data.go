@@ -17,6 +17,7 @@ type Row interface {
 
 type Reader interface {
 	Read() Row
+	Fields(row Row) map[string]string
 }
 
 /*
@@ -106,6 +107,14 @@ func (r *CSVReader) Read() Row {
 	return nil // EOF
 }
 
+func (r *CSVReader) Fields(row Row) map[string]string {
+	fields := make(map[string]string, len(r.columns.indices))
+	for column := range r.columns.indices {
+		fields[column] = row.Value(column)
+	}
+	return fields
+}
+
 /*
  * JSON Reader
  */
@@ -156,4 +165,14 @@ func (r *JSONReader) Read() Row {
 	values := r.data[r.index]
 	r.index++
 	return JSONRow{values}
+}
+
+func (r *JSONReader) Fields(row Row) map[string]string {
+	jsonRow := row.(JSONRow)
+	fields := make(map[string]string, len(jsonRow.values))
+	for key, value := range jsonRow.values {
+		fields[key] = value
+	}
+
+	return fields
 }
