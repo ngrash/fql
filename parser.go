@@ -1,15 +1,15 @@
 package main
 
 import (
-	"github.com/antlr/antlr4/runtime/Go/antlr"
-	"fql/parser"
 	"fmt"
+	"github.com/antlr/antlr4/runtime/Go/antlr"
+	"github.com/ngrash/fql/parser"
 )
 
 func ParseQuery(str string) Expression {
 	input := antlr.NewInputStream(str)
 	lexer := parser.NewFQLLexer(input)
-	stream := antlr.NewCommonTokenStream(lexer,0)
+	stream := antlr.NewCommonTokenStream(lexer, 0)
 	p := parser.NewFQLParser(stream)
 	p.AddErrorListener(antlr.NewDiagnosticErrorListener(true))
 	//p.BuildParseTrees = true
@@ -52,8 +52,8 @@ func (s *Stack) Pop() Expression {
 
 type Listener struct {
 	*parser.BaseFQLListener
-	stack *Stack
-	debug bool
+	stack  *Stack
+	debug  bool
 	result Expression
 }
 
@@ -92,7 +92,7 @@ func (l *Listener) ExitExpression(ctx *parser.ExpressionContext) {
 	if ctx.OR() != nil {
 		l.stack.Push(&Or{
 			right: l.stack.Pop(),
-			left: l.stack.Pop()})
+			left:  l.stack.Pop()})
 	} else if ctx.UnboundValue() == nil && ctx.Filter() == nil {
 		num_expressions := len(ctx.AllExpression())
 		expressions := make([]Expression, num_expressions)
@@ -111,7 +111,7 @@ func (l *Listener) EnterUnboundValue(ctx *parser.UnboundValueContext) {
 func (l *Listener) EnterFilter(ctx *parser.FilterContext) {
 	l.stack.Push(&Filter{
 		negate: ctx.NOT() != nil,
-		key: ctx.Key().GetText(),
-		op: ctx.Op().GetText(),
-		value: ctx.Value().GetText()})
+		key:    ctx.Key().GetText(),
+		op:     ctx.Op().GetText(),
+		value:  ctx.Value().GetText()})
 }
